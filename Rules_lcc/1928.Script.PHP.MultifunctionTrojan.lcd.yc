@@ -1,0 +1,61 @@
+uint virus_id = 1928;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "MultifunctionTrojan";
+string virus_variant = "lcd";
+
+uint max_scan_size = 204800;
+uint max_token_len = 20000;
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size || file_len < 10240)
+	{
+		return -1;
+	}
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+	// token 长度判断
+	token_len = token_list_len / 4 + 4;
+	if(token_len > max_token_len || token_len<10000)
+	{
+		return -1;
+	}
+    //查找 $_POST['_upl'] == "Upload" ) {if(@copy($_FILES['file']['tmp_name'], $_FILES['file']['name']
+
+	ptn ="327,040,320,091,323,093,289,323,041,123,327,040,064,319,040,320,091,323,093,091,323,093,044";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	//判断webshell标志
+	ptn = "b374k";
+	off_0 = isearch(buf, ptn);
+	if(off_0 == -1)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

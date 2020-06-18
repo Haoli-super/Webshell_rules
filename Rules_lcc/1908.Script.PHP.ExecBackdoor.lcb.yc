@@ -1,0 +1,57 @@
+uint virus_id = 1908;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "ExecBackdoor";
+string virus_variant = "lca";
+
+uint max_scan_size = 10240;
+uint max_token_len= 256;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+	// token 长度判断
+	token_len = token_list_len / 4 + 4;
+	if(token_len > max_token_len)
+	{
+		return -1;
+	}
+    //查找ympifwn = $jdxccsyh("",huqbsiykq($xozybdtes,$awvjtnz,$nkttprcq)); $jdxccsyh=$awvjtnz; //$ympifwn(""$ympifwn=(599-478); $awvjtnz=$ympifwn-1
+
+	ptn ="323,041,059,320,061,320,040,323,044,319,040,320,044,320,044,320,041,041,059,320,061,320,059,320,040,323,041,059,320,061,040,317,045,317,041,059,320,061,320,045,317,059";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

@@ -1,0 +1,37 @@
+uint virus_id = 1857;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "BackdoorGen";
+string virus_variant = "lcc";
+uint max_scan_size = 40960;
+
+uint scan(Stream stm)
+{
+	string buf, ptn;
+	uint len, off, scan_size;
+	scan_size = max_scan_size;
+	len = size(stm);	
+	if(len > max_scan_size)
+	{
+		return -1;		
+	}
+	buf = load_token_list(stm);
+	len = length(buf);
+	if (0 == len)
+	{
+		return -1;
+	}
+	ptn = "260,040,064,319,040,064,320,091,323,093";
+	off = search(buf, ptn);
+	if (-1 == off)
+	{
+		return -1;
+	}
+	
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

@@ -1,0 +1,47 @@
+uint virus_id = 1919;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "GammWebshell";
+string virus_variant = "lc";
+
+uint max_scan_size = 40960;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+	ptn = "Gamma Web Shell";
+	off_0 = isearch(buf, ptn);
+
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+	ptn = "$EXECUTE_TEMPLATE = <<EOT";
+	off_0 = isearch(buf, ptn);
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

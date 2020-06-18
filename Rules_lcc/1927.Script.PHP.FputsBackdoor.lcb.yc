@@ -1,0 +1,56 @@
+uint virus_id = 1927;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "FputsBackdoor";
+string virus_variant = "lcb";
+
+uint max_scan_size = 2048;
+uint max_token_len = 64;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+	// token 长度判断
+	token_len = token_list_len / 4 + 4;
+	if(token_len > max_token_len)
+	{
+		return -1;
+	}
+    //查找$fp = fopen("index.php", "w");fputs($fp, $entry_line);
+	ptn ="320,061,319,040,323,044,323,041,059,319,040,320,044,320,041,059";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	//查找$fp =@fopen("index.htm", "a+");$yazi = "test" . "\r\n";
+	ptn ="320,061,064,319,040,323,044,323,041,059,320,061,323,046,323,059,319,040,320,044,034,320,034,041,059";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

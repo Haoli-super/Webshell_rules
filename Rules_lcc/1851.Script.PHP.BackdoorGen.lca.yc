@@ -1,0 +1,40 @@
+uint virus_id = 1851;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "BackdoorGen";
+string virus_variant = "lca";
+
+// 最多扫描如下大小的文件内容，超过部分内容不扫描
+uint max_scan_size = 10240;
+
+string pattern0 = "MCA Shell";
+string pattern1 = "260,040,323,046,319,040";
+
+uint scan(Stream stm)
+{
+	string buf, ptn;
+	uint len, off, scan_size;
+	scan_size = max_scan_size;
+	len = size(stm);	
+	if(len < max_scan_size)
+	{
+		scan_size = len;		
+	}
+	buf = read(stm, 0, scan_size);
+	off = isearch(buf, pattern0);
+	if(-1 == off)
+	{
+		return -1;
+	}
+	buf = load_token_list(stm);
+	off = search(buf, pattern1);
+	if(-1 == off)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

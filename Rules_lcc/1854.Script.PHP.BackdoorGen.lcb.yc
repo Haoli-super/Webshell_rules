@@ -1,0 +1,34 @@
+uint virus_id = 1854;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "BackdoorGen";
+string virus_variant = "lcb";
+
+// 最多扫描如下大小的文件内容，超过部分内容不扫描
+uint max_scan_size = 40960;
+
+string pattern0 = "123,064,319,040,320,091,323,093,044,320,091,323,093,041";
+
+uint scan(Stream stm)
+{
+	string buf, ptn;
+	uint len, off, scan_size;
+	scan_size = max_scan_size;
+	len = size(stm);	
+	if(len > max_scan_size)
+	{
+		return -1;		
+	}
+	buf = load_token_list(stm);
+	off = search(buf, pattern0);
+	if(-1 == off)
+	{
+		return -1;
+	}
+	
+	return virus_id;
+}
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

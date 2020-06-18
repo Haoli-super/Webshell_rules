@@ -1,0 +1,55 @@
+uint virus_id = 1922;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "ExecBackdoor";
+string virus_variant = "lcc";
+
+uint max_scan_size = 4096;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+	ptn = "PHP Web Shell";
+	off_0 = isearch(buf, ptn);
+
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+	
+	ptn = "*=\"execute_form\"";
+	off_0 = isearch(buf, ptn);
+
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+	
+	ptn = "base64_decode($_GET['*'])";
+	off_0 = isearch(buf, ptn);
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

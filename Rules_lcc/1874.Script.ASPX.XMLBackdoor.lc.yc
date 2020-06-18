@@ -1,0 +1,40 @@
+uint virus_id = 1874;
+string virus_platform = "Script";
+string virus_major = "ASPX";
+string virus_minor = "XMLBackdoor";
+string virus_variant = "lc";
+
+// 最多扫描如下大小的文件内容，超过部分内容不扫描
+uint max_scan_size = 10240;
+
+string pattern0 = "Request.Item['cmd']";
+string pattern1 = "ActiveXObject(\"\"WScript.Shell\"\").Exec(";
+
+uint scan(Stream stm)
+{
+	string buf, ptn;
+	uint len, off, scan_size;
+	scan_size = max_scan_size;
+	len = size(stm);	
+	if(len < max_scan_size)
+	{
+		scan_size = len;		
+	}
+	buf = read(stm, 0, scan_size);
+	off = isearch(buf, pattern0);
+	if(-1 == off)
+	{
+		return -1;
+	}
+	buf = read(stm, off, scan_size);
+	off = isearch(buf, pattern1);
+	if(-1 == off)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

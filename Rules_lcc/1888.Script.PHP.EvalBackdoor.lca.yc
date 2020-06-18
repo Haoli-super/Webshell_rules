@@ -1,0 +1,48 @@
+uint virus_id = 1888;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "EvalBackdoor";
+string virus_variant = "lca";
+
+uint max_scan_size =10240;
+uint max_token_len=600;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+	// token 长度判断
+	token_len = token_list_len / 4 + 4;
+	if(token_len > max_token_len)
+	{
+		return -1;
+	}
+	ptn ="123,260,040,320,040,036,123,320,125,091,323,093,041,041,059";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

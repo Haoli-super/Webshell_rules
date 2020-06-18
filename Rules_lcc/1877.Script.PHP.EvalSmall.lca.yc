@@ -1,0 +1,59 @@
+uint virus_id = 1877;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "EvalSmall";
+string virus_variant = "lca";
+
+
+
+uint max_scan_size = 2048;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+
+	ptn = "320,366,319,061,320,091,323,093,059,125,125,320,061,306,319,040,041,059,320,366,319,040,041,059,320,061,320,366,319,059,319";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+
+	ptn = "preg_replace";
+	off_0 = isearch(buf, ptn);
+
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

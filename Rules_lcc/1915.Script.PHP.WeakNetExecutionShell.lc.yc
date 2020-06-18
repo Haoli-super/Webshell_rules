@@ -1,0 +1,45 @@
+uint virus_id = 1915;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "WeakNetExecutionShell";
+string virus_variant = "lc";
+
+uint max_scan_size = 20480;
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+	//判断是否查看php版本等信息
+	ptn = "WeakNet PHP Execution Shell";
+	off_0 = isearch(buf, ptn);
+	if(off_0 == -1)
+	{
+		return -1;
+	}
+	ptn = "if($_POST['downloadFile'] == 1)";
+	off_0 = isearch(buf, ptn);
+	if(off_0 == -1)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

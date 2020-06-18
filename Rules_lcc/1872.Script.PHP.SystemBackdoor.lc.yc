@@ -1,0 +1,62 @@
+uint virus_id = 1872;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "SystemBackdoor";
+string virus_variant = "lc";
+
+uint max_scan_size = 20480;
+uint max_token_len=1400;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+	// token 长度判断
+	token_len = token_list_len / 4 + 4;
+	if(token_len > max_token_len)
+	{
+		return -1;
+	}
+    //查找system("$cmd 2>/dev/stdout",$results)；$cmd = $_POST['cmd']
+	ptn ="320,091,323,093,289,323,041,123,319,040,034,320,322,034,044,320,041,059,125";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+	ptn = "WeakNet PHP Execution Shell";
+	off_0 = isearch(buf, ptn);
+
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

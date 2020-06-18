@@ -1,0 +1,39 @@
+uint virus_id = 1863;
+string virus_platform = "Script";
+string virus_major = "ASP";
+string virus_minor = "EvalSmall";
+string virus_variant = "lcb";
+
+// 最多扫描如下大小的文件内容，超过部分内容不扫描
+uint max_scan_size = 10240;
+
+string pattern0 = "execute request(";
+string pattern1 = "eval(request(";
+string pattern2 = "ExecuteGlobal request";
+string pattern3 = "eXecUTe(fun(";
+
+uint scan(Stream stm)
+{
+	string buf, ptn;
+	uint len, of,off,offf,ofun,scan_size;
+	scan_size = max_scan_size;
+	len = size(stm);	
+	if(len < max_scan_size)
+	{
+		scan_size = len;		
+	}
+	buf = read(stm, 0, scan_size);
+	of = isearch(buf, pattern0);
+	off = isearch(buf, pattern1);
+	offf = isearch(buf, pattern2);
+	ofun = isearch(buf, pattern3);
+	if(-1 == of && -1 == off && -1 == offf && -1 == ofun)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

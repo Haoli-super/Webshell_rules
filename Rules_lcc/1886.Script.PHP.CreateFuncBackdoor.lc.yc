@@ -1,0 +1,67 @@
+uint virus_id = 1886;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "CreateFunBackdoor";
+string virus_variant = "lc";
+
+uint max_scan_size =40960;
+uint max_token_len=256;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size)
+	{
+		return -1;
+	}
+
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+	// token 长度判断
+	token_len = token_list_len / 4 + 4;
+	if(token_len > max_token_len)
+	{
+		return -1;
+	}
+	ptn ="320,061,323,059,320,061,323,059";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+	ptn ="320,277,323,059,320,277,323,059,320,277,323,059,320,277,323,059";
+	off_0 = search(token_list, ptn);
+	if(off_0 == -1)
+	{
+		return -1;
+	}
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+	ptn = "b071e67503e9dcefecafd62e81704ef0";
+	off_1 = isearch(buf, ptn);
+
+	if (-1 == off_1)
+	{
+		return -1;
+	}
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}

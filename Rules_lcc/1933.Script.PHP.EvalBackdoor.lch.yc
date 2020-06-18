@@ -1,0 +1,71 @@
+uint virus_id = 1933;
+string virus_platform = "Script";
+string virus_major = "PHP";
+string virus_minor = "EvalBackdoor";
+string virus_variant = "lch";
+
+uint max_scan_size = 120000;
+uint min_scan_size = 51200;
+uint max_token_len = 20000;
+uint min_token_len = 15000;
+
+uint scan(Stream stm)
+{
+	string buf, token_list, ptn;
+	uint len, file_len, off, token_len, token_list_len;
+	uint off_0,off_1;
+
+	// 文件大小判断
+	file_len = size(stm);
+	if(file_len > max_scan_size || file_len < min_scan_size)
+	{
+		return -1;
+	}
+
+	// token获取
+	token_list = load_token_list(stm);
+	token_list_len = length(token_list);
+	if (0 == token_list_len)
+	{
+		return -1;
+	}
+	// token 长度判断
+	token_len = token_list_len / 4 + 4;
+	if(token_len > max_token_len || token_len < min_token_len)
+	{
+		return -1;
+	}
+    //查找eval后门$eval = @str_replace("<?","",$_POST['php_eval']);
+	ptn ="320,061,064,319,040,323,044,323,044,320,091,323,093,041,059,320,061,064,319,040,323,044,323,044,320,041,059";
+	off = search(token_list, ptn);
+	if(off == -1)
+	{
+		return -1;
+	}
+
+	buf = read(stm, 0, file_len);
+	len = length(buf);
+	if(0 == len)
+	{
+		return -1;
+	}
+	ptn = "str_replace(\"<?\",\"\",$_POST['php_eval'";
+	off_0 = isearch(buf, ptn);
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+	ptn = "R57 shell";
+	off_0 = isearch(buf, ptn);
+	if (-1 == off_0)
+	{
+		return -1;
+	}
+
+	return virus_id;
+}
+
+bool kill(Stream stm)
+{
+	return deletefile(stm);
+}
